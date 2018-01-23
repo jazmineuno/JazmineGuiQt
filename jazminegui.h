@@ -27,7 +27,9 @@ private:
     void runJazmined();
     void runJazmineWalletd();
     int tcp_port();
-   
+	int prev_total;
+	int prev_idle;
+
 private slots:
 	void jazminedLogSlot(const QString &);
 };

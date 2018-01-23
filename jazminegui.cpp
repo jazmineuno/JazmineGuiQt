@@ -14,8 +14,13 @@ JazmineGui::JazmineGui(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::JazmineGui)
 {
+	prev_total = 0;
+	prev_idle = 0;
     ui->setupUi(this);
     ui->plainTextEdit->setReadOnly(true);
+    
+//    QStatusBar * statusBar = new QStatusBar;
+    ui->statusBar->showMessage("Jazmine Blockchain");
     
     path = QDir::currentPath();
     QFileSystemWatcher * jazminedLog = new QFileSystemWatcher;
@@ -48,6 +53,35 @@ void JazmineGui::jazminedLogSlot(const QString &fn)
 	ui->plainTextEdit->setPlainText(output);
 	process->close();
 	ui->plainTextEdit->verticalScrollBar()->setValue(ui->plainTextEdit->verticalScrollBar()->maximum());
+	
+	QProcess * p = new QProcess(this);
+	p->start("sh", QStringList() << "-c" << "cat /proc/stat | head -n1 | sed 's/cpu //'");
+	p->waitForFinished(-1);
+	QString po = p->readAllStandardOutput();
+	p->close();
+	QStringList ll = po.split(" ");
+	int user = ll[1].toInt();
+	int system = ll[2].toInt();
+	int nice = ll[3].toInt();
+	int idle = ll[4].toInt();
+	int wait = ll[5].toInt();
+	int irq = ll[6].toInt();
+	int srq = ll[7].toInt();
+	int zero = ll[8].toInt();
+	int total=( user + system + nice + idle + wait + irq + srq + zero);
+	int diff_idle = idle-prev_idle;
+	int diff_total = (total-prev_total);
+	int usage=((( 1000 * ( (diff_total - diff_idle)) / diff_total+5) ) / 10);
+	prev_total = total;
+	prev_idle = idle;
+	
+	QProcess * r = new QProcess(this);
+	r->start("awk", QStringList() << "/MemTotal/ { print $2 }" << "/proc/meminfo");
+	r->waitForFinished();
+	QString memory = r->readAllStandardOutput();
+	r->close();
+
+	ui->statusBar->showMessage("CPU: " + QString::number(usage) + "% " + QString(" MEM: %1 MB").arg(memory.toLong() / 1024));
 }
 
 int JazmineGui::tcp_port()
