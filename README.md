@@ -40,12 +40,18 @@ You will also need php 7.2+, build with curl and sodium.
 i.e.,
 ```
 ./configure --with-curl --with-sodium
+make
 ```
 
+Copy the entire php directory (ex: php-7.2.1) to JazmineGuiQt/php
 
-Also need to build jazmine for Linux and put build in JazmineGuiQt directory.
+NOTE: Use the included php.ini file. Put php.ini in php/sapi/cli/
+(edit session info as needed, see above)
 
-Use the included php.ini file. Put php.ini in php/sapi/cli/
+
+
+Also need to build jazmine for Linux and put 'build' directory in JazmineGuiQt directory.
+
 
 
 
