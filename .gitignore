@@ -6,3 +6,4 @@ JazmineGuiQt
 .pro.user*
 Makefile
 .qmake.stash
+moc_*
