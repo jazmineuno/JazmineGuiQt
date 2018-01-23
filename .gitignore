@@ -1,4 +1,5 @@
 php*
+!php.ini
 build*
 .o*
 JazmineGuiQt
