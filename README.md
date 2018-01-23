@@ -37,6 +37,12 @@ You will need to copy the jazmine-php directory to your exe/build directory.
 
 You will also need php 7.2+, build with curl and sodium.
 
+i.e.,
+```
+./configure --with-curl --with-sodium
+```
+
+
 Also need to build jazmine for Linux and put build in JazmineGuiQt directory.
 
 Use the included php.ini file. Put php.ini in php/sapi/cli/
