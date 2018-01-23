@@ -13,9 +13,9 @@ JazmineGui::~JazmineGui()
     delete ui;
 }
 
-JazmineGui::runPHP()
+void JazmineGui::runPHP()
 {
     QProcess *process = new QProcess(this);
-    QString file = QDir::currentPath() + QDir::separator + "file.exe";
+    QString file = QDir::currentPath() +"/file.exe";
     process->start(file);
 }

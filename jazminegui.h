@@ -2,6 +2,8 @@
 #define JAZMINEGUI_H
 
 #include <QMainWindow>
+#include <QProcess>
+#include <QDir>
 
 namespace Ui {
 class JazmineGui;
@@ -17,6 +19,7 @@ public:
 
 private:
     Ui::JazmineGui *ui;
+    void runPHP();
 };
 
 #endif // JAZMINEGUI_H
