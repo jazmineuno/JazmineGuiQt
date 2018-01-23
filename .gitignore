@@ -7,3 +7,5 @@ JazmineGuiQt
 Makefile
 .qmake.stash
 moc_*
+ui_*
+*.core
