@@ -4,3 +4,5 @@ build*
 JazmineGuiQt
 .autosave*
 .pro.user*
+Makefile
+.qmake.stash
