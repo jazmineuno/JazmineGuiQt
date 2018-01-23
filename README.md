@@ -14,6 +14,10 @@ It is not accessible to the outside, HOWEVER PLEASE NOTE that a specially script
 on a remote web site could possibly manipulate the rpc/http server running on your machine. 
 This means people could steal your coins. If you are running througn the JazmineGui it randomizes
 the port used, but it is still a bad idea to have a wallet open while surfing the www.
+
+This software stores session variables in /tmp by default. 
+On a shared/multi-user system the session variables may be accessible to other users.
+Change this behavior by editing php.ini
 ```
 
 At the moment do not "surf the web" while running this software, it's potentially an issue. 
