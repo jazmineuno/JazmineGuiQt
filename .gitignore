@@ -1,10 +1,10 @@
 php*
 !php.ini
 build*
-.o*
+*.o
 JazmineGuiQt
-.autosave*
-.pro.user*
+*.autosave
+*.pro.user*
 Makefile
 .qmake.stash
 moc_*
