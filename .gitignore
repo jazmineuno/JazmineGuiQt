@@ -11,3 +11,4 @@ moc_*
 ui_*
 *.core
 jazmine-php
+*.log
