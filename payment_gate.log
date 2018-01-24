@@ -1,4 +1,0 @@
-2018-Jan-24 08:23:14.131231 INFO [main] PaymentService  v1.1.1.1()
-2018-Jan-24 08:23:14.135689 INFO [generateNewWallet] Generating new wallet
-2018-Jan-24 08:23:14.137317 INFO [generateNewWallet] New wallet is generated. Address: jazYhu3F8r23Cyc66rgsHofXvrtn1PeAQNtuzaRYEsXU1xDENNY92ks43F6DNwAN5vKaqbEVua9fUH4xFtQRLPeHAbJyX2MTaL
-2018-Jan-24 08:23:14.263331 INFO [generateNewWallet] Wallet is saved
