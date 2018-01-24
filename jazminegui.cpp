@@ -31,6 +31,10 @@ JazmineGui::JazmineGui(QWidget *parent) :
 	jazminedLog->addPath(path + "/build/src/jazmined.log");
     connect(jazminedLog,SIGNAL(fileChanged(const QString &)),this,SLOT(jazminedLogSlot(const QString &)));
 
+    QFileSystemWatcher * jazminedWalletdLog = new QFileSystemWatcher;
+    jazminedWalletdLog->addPath(path + "/payment_gate.log");
+    connect(jazminedWalletdLog,SIGNAL(fileChanged(const QString &)),this,SLOT(jazminedWalletdLogSlot(const QString &)));
+
     bool itsaok = false;
     QFileInfo check_file(path + "/build/src/jazmine.bin.wallet");
     if (check_file.exists() && check_file.isFile())
@@ -150,6 +154,18 @@ void JazmineGui::jazminedLogSlot(const QString &)
 	r->close();
 
 	ui->statusBar->showMessage("CPU: " + QString::number(usage) + "% " + QString(" MEM: %1 MB").arg(memory.toLong() / 1024));
+}
+
+void JazmineGui::jazminedWalletdLogSlot(const QString &)
+{
+    QStringList param = QStringList() << "-1000"  << path + "/payment_gate.log";
+    QProcess * process = new QProcess(this);
+    process->start("tail",param);
+    process->waitForFinished();
+    QString output(process->readAllStandardOutput());
+    ui->plainTextEdit_2->setPlainText(output);
+    process->close();
+    ui->plainTextEdit_2->verticalScrollBar()->setValue(ui->plainTextEdit_2->verticalScrollBar()->maximum());
 }
 
 int JazmineGui::tcp_port()
