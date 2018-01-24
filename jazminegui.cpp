@@ -88,7 +88,7 @@ JazmineGui::JazmineGui(QWidget *parent) :
     {
         runPHP();
         runJazmined();
-        jazminewalletd_port = 39999;
+        runJazmineWalletd();
         QThread::sleep(2); //wait for the http server to warm up
 
         QUrl nav("http://localhost:" + QString::number(php_port) + "/home.php?version=" + VERSION + "&sp=" + QString::number(jazmined_port) + "&wp=" + QString::number(jazminewalletd_port));
@@ -201,7 +201,7 @@ void JazmineGui::runJazmineWalletd()
     {
         jazminewalletd_port = tcp_port();
         qInfo() << "jazminedwalletd_port: " << jazminewalletd_port;
-        QStringList param = QStringList() << "-w" << "jazmine.bin.wallet" << "-p" << wallet_pwd << "--log-level=4" << "--daemon-port=" + QString::number(jazmined_port) << "--bind-address=127.0.0.1" << "--bind-port=" + QString::number(jazminewalletd_port);
+        QStringList param = QStringList() << "-w" << path + "/build/src/jazmine.bin.wallet" << "-p" << wallet_pwd << "--log-level=4" << "--daemon-port=" + QString::number(jazmined_port) << "--bind-address=127.0.0.1" << "--bind-port=" + QString::number(jazminewalletd_port);
         QProcess * process = new QProcess(this);
         process->start(path +"/build/src/jazminewalletd",param);
     } else {
