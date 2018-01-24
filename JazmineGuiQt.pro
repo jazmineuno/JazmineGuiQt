@@ -29,15 +29,18 @@ SOURCES += \
         main.cpp \
         jazminegui.cpp \
     newwallet.cpp \
-    authenticatewallet.cpp
+    authenticatewallet.cpp \
+    coldwallet.cpp
 
 HEADERS += \
         jazminegui.h \
     newwallet.h \
-    authenticatewallet.h
+    authenticatewallet.h \
+    coldwallet.h
 
 FORMS += \
         jazminegui.ui \
     newwallet.ui \
-    authenticatewallet.ui
+    authenticatewallet.ui \
+    coldwallet.ui
 

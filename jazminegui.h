@@ -35,6 +35,7 @@ private:
 private slots:
     void jazminedLogSlot(const QString &);
     void jazminedWalletdLogSlot(const QString &);
+    void on_actionCold_Wallet_triggered();
 };
 
 #endif // JAZMINEGUI_H

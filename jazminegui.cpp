@@ -2,6 +2,7 @@
 #include "ui_jazminegui.h"
 #include "newwallet.h"
 #include "authenticatewallet.h"
+#include "coldwallet.h"
 #include <QTcpServer>
 #include <QtGlobal>
 #include <QWebView>
@@ -207,4 +208,12 @@ void JazmineGui::runJazmineWalletd()
     } else {
         QMessageBox::information(this,"Jazmine Blockchain","Could not start wallet. Password is blank.");
     }
+}
+
+void JazmineGui::on_actionCold_Wallet_triggered()
+{
+    ColdWallet * cw = new ColdWallet();
+    cw->setPath(path);
+    cw->setPort(jazmined_port);
+    cw->exec();
 }
