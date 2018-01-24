@@ -1,5 +1,7 @@
 #include "jazminegui.h"
 #include "ui_jazminegui.h"
+#include "newwallet.h"
+#include "authenticatewallet.h"
 #include <QTcpServer>
 #include <QtGlobal>
 #include <QWebView>
@@ -7,6 +9,8 @@
 #include <QThread>
 #include <QFileSystemWatcher>
 #include <QScrollBar>
+#include <QFileInfo>
+#include <QMessageBox>
 
 #define VERSION "1.1.1.1"
 
@@ -14,28 +18,82 @@ JazmineGui::JazmineGui(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::JazmineGui)
 {
+    wallet_pwd = "";
 	prev_total = 0;
 	prev_idle = 0;
     ui->setupUi(this);
     ui->plainTextEdit->setReadOnly(true);
     
-//    QStatusBar * statusBar = new QStatusBar;
     ui->statusBar->showMessage("Jazmine Blockchain");
     
     path = QDir::currentPath();
     QFileSystemWatcher * jazminedLog = new QFileSystemWatcher;
 	jazminedLog->addPath(path + "/build/src/jazmined.log");
+    connect(jazminedLog,SIGNAL(fileChanged(const QString &)),this,SLOT(jazminedLogSlot(const QString &)));
 
-	connect(jazminedLog,SIGNAL(fileChanged(const QString &)),this,SLOT(jazminedLogSlot(const QString &)));
-	
-    runPHP();
-    runJazmined();
-    jazminewalletd_port = 39999;
-    QThread::sleep(2); //wait for the http server to warm up
+    bool itsaok = false;
+    QFileInfo check_file(path + "/build/src/jazmine.bin.wallet");
+    if (check_file.exists() && check_file.isFile())
+    {
+        AuthenticateWallet * aw = new AuthenticateWallet(this);
+        while (!itsaok)
+        {
+            int res = aw->exec();
+            if (res == QDialog::Accepted)
+            {
+                QString wp = aw->getPassword();
+                if (wp.length()<1)
+                {
+                    QMessageBox::information(this,"Jazmine Blockchain","Password must not be blank.");
+                } else {
+                    wallet_pwd = wp;
+                    itsaok = true;
+                }
+            } else {
+                break;
+            }
+        }
+    } else {
+        NewWallet * nw = new NewWallet(this);
+        while (!itsaok)
+        {
+            int res = nw->exec();
+            if (res == QDialog::Accepted)
+            {
+                QString wp = nw->getPassword();
+                if (wp.length()<1)
+                {
+                    QMessageBox::information(this,"Jazmine Blockchain","Password must not be blank.");
+                } else {
+                    if (wp=="0")
+                    {
+                        QMessageBox::information(this,"Jazmine Blockchain","Password does not match confirmation.");
+                    } else {
+                        wallet_pwd = wp;
+                        createWallet();
+                        itsaok = true;
+                    }
+                }
+            } else {
+                break;
+            }
+        }
 
-	QUrl nav("http://localhost:" + QString::number(php_port) + "/home.php?version=" + VERSION + "&sp=" + QString::number(jazmined_port) + "&wp=" + QString::number(jazminewalletd_port));
-    ui->webView->load(nav);
-    ui->webView->show();
+    }
+    if (itsaok)
+    {
+        runPHP();
+        runJazmined();
+        jazminewalletd_port = 39999;
+        QThread::sleep(2); //wait for the http server to warm up
+
+        QUrl nav("http://localhost:" + QString::number(php_port) + "/home.php?version=" + VERSION + "&sp=" + QString::number(jazmined_port) + "&wp=" + QString::number(jazminewalletd_port));
+        ui->webView->load(nav);
+        ui->webView->show();
+    } else {
+        QApplication::quit();
+        exit(EXIT_FAILURE);
+    }
 }
 
 JazmineGui::~JazmineGui()
@@ -43,8 +101,18 @@ JazmineGui::~JazmineGui()
     delete ui;
 }
 
-void JazmineGui::jazminedLogSlot(const QString &fn)
+void JazmineGui::createWallet()
 {
+    QStringList param = QStringList() << "-w" << (path + "/build/src/jazmine.bin.wallet") << "-p" << wallet_pwd << "-g";
+    QProcess * process = new QProcess(this);
+    process->start(path+"/build/src/jazminewalletd",param);
+    process->waitForFinished();
+    process->close();
+}
+
+void JazmineGui::jazminedLogSlot(const QString &)
+{
+
 	QStringList param = QStringList() << "-1000"  << path + "/build/src/jazmined.log";
     QProcess * process = new QProcess(this);
     process->start("tail",param);
@@ -113,10 +181,14 @@ void JazmineGui::runJazmined()
 
 void JazmineGui::runJazmineWalletd()
 {
-	QString wallet_pwd = "";
-	jazminewalletd_port = tcp_port();
-    qInfo() << "jazminedwalletd_port: " << jazminewalletd_port;
-	QStringList param = QStringList() << "-w" << "jazmine.bin.wallet" << "-p" << wallet_pwd << "--log-level=4" << "--daemon-port=" + QString::number(jazmined_port) << "--bind-address=127.0.0.1" << "--bind-port=" + QString::number(jazminewalletd_port);
-    QProcess * process = new QProcess(this);
-    process->start(path +"/build/src/jazmined",param);
+    if (wallet_pwd!="")
+    {
+        jazminewalletd_port = tcp_port();
+        qInfo() << "jazminedwalletd_port: " << jazminewalletd_port;
+        QStringList param = QStringList() << "-w" << "jazmine.bin.wallet" << "-p" << wallet_pwd << "--log-level=4" << "--daemon-port=" + QString::number(jazmined_port) << "--bind-address=127.0.0.1" << "--bind-port=" + QString::number(jazminewalletd_port);
+        QProcess * process = new QProcess(this);
+        process->start(path +"/build/src/jazminewalletd",param);
+    } else {
+        QMessageBox::information(this,"Jazmine Blockchain","Could not start wallet. Password is blank.");
+    }
 }

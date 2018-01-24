@@ -18,6 +18,7 @@ public:
     ~JazmineGui();
 
 private:
+    QString wallet_pwd;
 	QString path;
 	int php_port;
 	int jazmined_port;
@@ -26,12 +27,13 @@ private:
     void runPHP();
     void runJazmined();
     void runJazmineWalletd();
+    void createWallet();
     int tcp_port();
 	int prev_total;
 	int prev_idle;
 
 private slots:
-	void jazminedLogSlot(const QString &);
+    void jazminedLogSlot(const QString &);
 };
 
 #endif // JAZMINEGUI_H

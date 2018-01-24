@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>938</width>
-    <height>504</height>
+    <width>1138</width>
+    <height>603</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,13 +65,13 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>938</width>
+     <width>1138</width>
      <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>Fi&amp;le</string>
     </property>
     <addaction name="actionBackup"/>
     <addaction name="actionCold_Wallet"/>
@@ -98,27 +98,27 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionBackup">
    <property name="text">
-    <string>Backup</string>
+    <string>&amp;Backup</string>
    </property>
   </action>
   <action name="actionCold_Wallet">
    <property name="text">
-    <string>Cold Wallet</string>
+    <string>&amp;Cold Wallet</string>
    </property>
   </action>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>&amp;Exit</string>
    </property>
   </action>
   <action name="actionDocumentation">
    <property name="text">
-    <string>Documentation</string>
+    <string>&amp;Documentation</string>
    </property>
   </action>
   <action name="actionSupport">
    <property name="text">
-    <string>Support</string>
+    <string>&amp;Support</string>
    </property>
   </action>
  </widget>

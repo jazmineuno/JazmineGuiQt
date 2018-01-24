@@ -27,11 +27,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        jazminegui.cpp
+        jazminegui.cpp \
+    newwallet.cpp \
+    authenticatewallet.cpp
 
 HEADERS += \
-        jazminegui.h
+        jazminegui.h \
+    newwallet.h \
+    authenticatewallet.h
 
 FORMS += \
-        jazminegui.ui
+        jazminegui.ui \
+    newwallet.ui \
+    authenticatewallet.ui
 
