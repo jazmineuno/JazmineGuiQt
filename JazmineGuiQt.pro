@@ -30,17 +30,20 @@ SOURCES += \
         jazminegui.cpp \
     newwallet.cpp \
     authenticatewallet.cpp \
-    coldwallet.cpp
+    coldwallet.cpp \
+    miner.cpp
 
 HEADERS += \
         jazminegui.h \
     newwallet.h \
     authenticatewallet.h \
-    coldwallet.h
+    coldwallet.h \
+    miner.h
 
 FORMS += \
         jazminegui.ui \
     newwallet.ui \
     authenticatewallet.ui \
-    coldwallet.ui
+    coldwallet.ui \
+    miner.ui
 

@@ -36,12 +36,11 @@ void ColdWallet::on_newWalletButton_clicked()
     } else {
         QFile::copy(path+"/build/src/jazminewallet",fn);
         QDir cpath = QFileInfo(fn).absoluteDir();
-        QDir::setCurrent(cpath.absolutePath());
         QStringList params = QStringList() << fn << "--daemon-port=" + QString::number(jazmined_port);
         QProcess * pc = new QProcess(this);
+        pc->setWorkingDirectory(cpath.absolutePath());
         pc->startDetached("/lib64/ld-linux-x86-64.so.2",params);
         pc->waitForFinished();
-        QDir::setCurrent(path);
     }
 
 }
@@ -54,11 +53,10 @@ void ColdWallet::on_openWalletButton_clicked()
         return;
     } else {
         QDir cpath = QFileInfo(fn).absoluteDir();
-        QDir::setCurrent(cpath.absolutePath());
         QStringList params = QStringList() << fn << "--daemon-port=" + QString::number(jazmined_port);
         QProcess * pc = new QProcess(this);
+        pc->setWorkingDirectory(cpath.absolutePath());
         pc->startDetached("/lib64/ld-linux-x86-64.so.2",params);
         pc->waitForFinished();
-        QDir::setCurrent(path);
     }
 }

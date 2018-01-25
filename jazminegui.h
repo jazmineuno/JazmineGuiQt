@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QProcess>
 #include <QDir>
+#include <QProcess>
 
 namespace Ui {
 class JazmineGui;
@@ -18,6 +19,12 @@ public:
     ~JazmineGui();
 
 private:
+    qint64 mining_pid;
+    QProcess * php_process;
+    QProcess * mining_process;
+    QProcess * daemon_process;
+    QProcess * wallet_process;
+    bool mining_started;
     QString wallet_pwd;
 	QString path;
 	int php_port;
@@ -36,6 +43,10 @@ private slots:
     void jazminedLogSlot(const QString &);
     void jazminedWalletdLogSlot(const QString &);
     void on_actionCold_Wallet_triggered();
+    void on_actionExit_triggered();
+    void on_actionStart_Miner_triggered();
+    void updateMiningLog();
+    void on_actionStop_Miner_triggered();
 };
 
 #endif // JAZMINEGUI_H

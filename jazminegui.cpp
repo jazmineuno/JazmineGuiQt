@@ -3,6 +3,7 @@
 #include "newwallet.h"
 #include "authenticatewallet.h"
 #include "coldwallet.h"
+#include "miner.h"
 #include <QTcpServer>
 #include <QtGlobal>
 #include <QWebView>
@@ -19,12 +20,21 @@ JazmineGui::JazmineGui(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::JazmineGui)
 {
+    mining_started = false;
+    mining_pid = 0;
     wallet_pwd = "";
 	prev_total = 0;
 	prev_idle = 0;
     ui->setupUi(this);
     ui->plainTextEdit->setReadOnly(true);
-    
+    ui->plainTextEdit_2->setReadOnly(true);
+    ui->plainTextEdit_3->setReadOnly(true);
+
+    wallet_process = new QProcess(this);
+    daemon_process = new QProcess(this);
+    mining_process = new QProcess(this);
+    php_process = new QProcess(this);
+
     ui->statusBar->showMessage("Jazmine Blockchain");
     
     path = QDir::currentPath();
@@ -175,7 +185,7 @@ int JazmineGui::tcp_port()
 	tcpServer->listen(QHostAddress::LocalHost, 0);
 	int port = (int) tcpServer->serverPort();
 	tcpServer->close();
-	return port;
+    return port;
 }
 
 void JazmineGui::runPHP()
@@ -183,8 +193,7 @@ void JazmineGui::runPHP()
     php_port = tcp_port();
     qInfo() << "php_port: " << php_port;
 	QStringList param = QStringList() << "-S" << "127.0.0.1:" + QString::number(php_port) << "-t" << path + "/jazmine-php";
-    QProcess * process = new QProcess(this);
-    process->start(path +"/php/sapi/cli/php",param);
+    php_process->start(path +"/php/sapi/cli/php",param);
 }
 
 void JazmineGui::runJazmined()
@@ -192,8 +201,7 @@ void JazmineGui::runJazmined()
 	jazmined_port = tcp_port();
     qInfo() << "jazmined_port: " << jazmined_port;
 	QStringList param = QStringList() << "--rpc-bind-port=" + QString::number(jazmined_port) << "--no-console" << "--log-level=4";
-    QProcess * process = new QProcess(this);
-    process->start(path +"/build/src/jazmined",param);
+    daemon_process->start(path +"/build/src/jazmined",param);
 }
 
 void JazmineGui::runJazmineWalletd()
@@ -203,8 +211,7 @@ void JazmineGui::runJazmineWalletd()
         jazminewalletd_port = tcp_port();
         qInfo() << "jazminedwalletd_port: " << jazminewalletd_port;
         QStringList param = QStringList() << "-w" << path + "/build/src/jazmine.bin.wallet" << "-p" << wallet_pwd << "--log-level=4" << "--daemon-port=" + QString::number(jazmined_port) << "--bind-address=127.0.0.1" << "--bind-port=" + QString::number(jazminewalletd_port);
-        QProcess * process = new QProcess(this);
-        process->start(path +"/build/src/jazminewalletd",param);
+        wallet_process->start(path +"/build/src/jazminewalletd",param);
     } else {
         QMessageBox::information(this,"Jazmine Blockchain","Could not start wallet. Password is blank.");
     }
@@ -216,4 +223,82 @@ void JazmineGui::on_actionCold_Wallet_triggered()
     cw->setPath(path);
     cw->setPort(jazmined_port);
     cw->exec();
+}
+
+void JazmineGui::on_actionExit_triggered()
+{
+    if (php_process->pid()>0)
+    {
+        php_process->terminate();
+        php_process->close();
+    }
+
+    if (daemon_process->pid()>0)
+    {
+        daemon_process->terminate();
+        daemon_process->close();
+    }
+
+    if (wallet_process->pid()>0)
+    {
+        wallet_process->terminate();
+        wallet_process->close();
+    }
+
+    if (mining_pid>0)
+    {
+        QProcess::startDetached("kill",{QString::number(mining_pid)});
+    }
+    QApplication::quit();
+    exit(EXIT_SUCCESS);
+ }
+
+void JazmineGui::on_actionStart_Miner_triggered()
+{
+    if (mining_started)
+    {
+        QMessageBox::information(this,"Jazmine Blockchain","Mining is already starting. Stop mining first.");
+    } else {
+        Miner * mn = new Miner();
+        int res = mn->exec();
+        if (res == QDialog::Accepted)
+        {
+            QString threads = mn->getThreads();
+            QString address = mn->getAddress();
+            if (address.length()<1)
+            {
+                QMessageBox::information(this,"Jazmine Blockchain","Could not start mining. No address given.");
+            } else {
+                QStringList param = QStringList() << "--address" << address << "--daemon-rpc-port="+QString::number(jazmined_port) << "--threads="+threads << "--log-level=4" << ">" << path+"/jazmineminer.log";
+
+                //connect(mining_process, SIGNAL(readyReadStandardOutput()), this, SLOT(updateMiningLog()));
+                mining_process->startDetached(path + "/build/src/jazmineminer",param,path,&mining_pid);
+                mining_started = true;
+                ui->plainTextEdit_3->appendPlainText("Mining Started. See Console for log.\n");
+                ui->plainTextEdit_3->verticalScrollBar()->setValue(ui->plainTextEdit_3->verticalScrollBar()->maximum());
+            }
+        }
+    }
+}
+
+void JazmineGui::updateMiningLog()
+{
+    QProcess * p = (QProcess *)sender();
+    QByteArray tm = p->readAllStandardOutput();
+    ui->plainTextEdit_3->appendPlainText(QString(tm));
+    ui->plainTextEdit_3->verticalScrollBar()->setValue(ui->plainTextEdit_3->verticalScrollBar()->maximum());
+}
+
+void JazmineGui::on_actionStop_Miner_triggered()
+{
+    if (mining_pid>0)
+    {
+        QProcess::startDetached("kill",{QString::number(mining_pid)});
+        ui->plainTextEdit_3->appendPlainText("Mining Stopped.\n");
+        ui->plainTextEdit_3->verticalScrollBar()->setValue(ui->plainTextEdit_3->verticalScrollBar()->maximum());
+        mining_started = false;
+        mining_pid = 0;
+    } else {
+        QMessageBox::information(this,"Jazmine Blockchain","Excuse me. We are not currently mining.");
+    }
 }
